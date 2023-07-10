@@ -1,0 +1,38 @@
+summary: searching Restaurants
+tasks:
+  - id: if
+    fn: com.gs.if
+    condition: <% inputs.body.code %>
+    tasks:
+      - id: step1
+        description: Return filtered restaurants along with menu items based on given CouponCode in given location
+        fn: com.gs.datastore
+        args:
+          datasource: postgres
+          data:
+            where:
+              location: <% inputs.body.location %>
+            include:
+              menuItems:
+                where:
+                  couponCode:
+                    has: <% inputs.body.code %> 
+          config:
+            method: Restaurant.findMany
+
+  - id: else
+    description: Return all restaurants along with menu items in given location
+    fn: com.gs.else
+    tasks:
+      - id: step4
+        description: Return all restaurants of given location
+        fn: com.gs.datastore
+        args:
+          datasource: postgres
+          data:
+            where:
+              location: <% inputs.body.location %>
+            include:
+              menuItems: true
+          config:
+            method: Restaurant.findMany
